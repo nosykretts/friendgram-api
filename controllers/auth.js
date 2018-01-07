@@ -41,16 +41,20 @@ module.exports = {
   },
   signup: function(req, res, next) {
     UserModel.findOne({
-      email: req.body.email,
+      $or : [
+        {email: req.body.email},
+        {username: req.body.username}
+      ]
     })
       .then(user => {
         if (user) {
           res.status(403).json({
-            message: 'Email already registered',
+            message: 'Email or username already registered',
           })
         } else {
           return UserModel.create({
             name: req.body.name,
+            username : req.body.name,
             email: req.body.email,
             password: req.body.password,
           })

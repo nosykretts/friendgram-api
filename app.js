@@ -12,13 +12,13 @@ mongoose.connection.openUri(process.env.MONGODB_CONN_STRING, {
   useMongoClient: true,
 })
 mongoose.Promise = global.Promise
-mongoose.connection
-  .once('open', () => {
-    console.log('mongoose connection success')
-  })
-  .on('error', error => {
-    console.log('connection error', error)
-  })
+// mongoose.connection
+//   .once('open', () => {
+//     console.log('mongoose connection success')
+//   })
+//   .on('error', error => {
+//     console.log('connection error', error)
+//   })
 
 app.use(morgan('dev'))
 app.use(bodyParser.json())

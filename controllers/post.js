@@ -3,9 +3,34 @@ const boom = require('boom')
 const PostModel = require('../models/post')
 const CommentModel = require('../models/comment')
 
+function manipulatePost(post, userId) {
+  post.canEditPost = post.creator._id == userId,
+  post.canDeletePost = post.creator._id == userId,
+  post.canLikePost = post.creator._id != userId
+  return post
+}
+const creatorOptPopulate = {
+  path: 'creator',
+  select : ['username', 'name'],
+  // options: { lean: true}
+}
 module.exports = {
   getPosts: function(req, res, next) {
     PostModel.find()
+      
+      .sort({createdAt: 'desc'})
+      .populate({
+        path: 'creator',
+        select : ['username', 'name'],
+      })
+      .populate({
+        path: 'comments.creator',
+        select : ['username', 'name'],
+      })
+      .lean()
+      .then(posts => {
+        return posts.map(post => manipulatePost(post, req.userId))
+      })
       .then(posts =>
         res.status(200).json({
           message: 'Posts get success',
@@ -39,6 +64,10 @@ module.exports = {
         }
       }
     },{ new : true})
+    .populate({
+      path : 'comments.creator',
+      select : ['username', 'name']
+    })
     .then(post => {
       if (!post) {
         return res.status(404).json({
@@ -47,7 +76,7 @@ module.exports = {
       }
       res.status(200).json({
         message: 'Comments successfully created',
-        data: post.comments[0],
+        data: post.comments[post.comments.length -1],
       })
     })
   },
@@ -61,9 +90,7 @@ module.exports = {
           message: 'Post not found',
         })
       }
-      let cmt = post.comments.id(req.params.commentId).remove({
-        creator : req.userId
-      })
+      let cmt = post.comments.id(req.params.commentId).remove()
       return post.save()
     })
     .then(post => {
