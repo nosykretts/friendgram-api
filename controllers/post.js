@@ -4,10 +4,15 @@ const PostModel = require('../models/post')
 const CommentModel = require('../models/comment')
 
 function manipulatePost(post, userId) {
-  post.canEditPost = post.creator._id == userId,
-  post.canDeletePost = post.creator._id == userId,
-  post.canLikePost = post.creator._id != userId
-  return post
+  const likedByMe = post.likes.indexOf(userId) >= 0
+  return {
+    ...post,
+    canEditPost : post.creator._id == userId,
+    canDeletePost : post.creator._id == userId,
+    canLikePost : post.creator._id != userId,
+    likedByMe : post.likes.indexOf(userId) >= 0,
+
+  }
 }
 const creatorOptPopulate = {
   path: 'creator',

@@ -40,11 +40,9 @@ module.exports = {
       .catch(err => next(boom.boomify(err)))
   },
   signup: function(req, res, next) {
+    const {name, username, email,password} = req.body
     UserModel.findOne({
-      $or : [
-        {email: req.body.email},
-        {username: req.body.username}
-      ]
+      $or : [{email},{username}]
     })
       .then(user => {
         if (user) {
@@ -53,10 +51,10 @@ module.exports = {
           })
         } else {
           return UserModel.create({
-            name: req.body.name,
-            username : req.body.name,
-            email: req.body.email,
-            password: req.body.password,
+            name,
+            username,
+            email,
+            password,
           })
         }
       })
