@@ -11,11 +11,13 @@ const {
   updateCaption,
   getPosts,
   createComment,
-  deleteComment
+  deleteComment,
+  toggleLike
 } = require('../controllers/post')
 
 router.get('/', authentication, getPosts)
 router.post('/', authentication, multer.single('newPhoto'), uploadOneFileToGCS, createPost)
+router.put('/:id/togglelike',authentication, toggleLike)
 router.put('/:id/updatecaption', authentication, updateCaption)
 router.post('/:id/comments', authentication, createComment)
 router.delete('/:id/comments/:commentId', authentication, deleteComment)

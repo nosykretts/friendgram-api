@@ -19,10 +19,7 @@ let postSchema = new Schema(
       required : true
     },
     likes : [{
-      creator : {
-        type : Schema.Types.ObjectId,
-        ref : 'User'      
-      },
+      type : Schema.Types.ObjectId,
     }],
     comments : [commentModel.schema]
   },

@@ -35,6 +35,7 @@ module.exports = {
       .lean()
       .then(posts => {
         return posts.map(post => manipulatePost(post, req.userId))
+        // return posts
       })
       .then(posts =>
         res.status(200).json({
@@ -105,8 +106,38 @@ module.exports = {
       })
     })
     .catch(err => next(boom.boomify(err)))
+  }, 
+  toggleLike: function(req, res, next){
+    PostModel.findOne({
+      _id : req.params.id,
+    })
+    .then(post => {
+      if(!post){
+        return res.status(404).json({
+          message: 'Post not found',
+        })
+      }else{
+        console.log(post)
+        if(post.likes.indexOf(req.userId) >= 0){
+          post.likes.pull(req.userId)
+        }else{
+          post.likes.push(req.userId)
+        }
+        console.log('kcinihhhhh')
+        post.save()
+        .then(post => {
+          res.status(200).json({
+            message: 'Like or unlike success',
+            data: post,
+          })
+        })
+        .catch(err => next(boom.boomify()))
+      }
+    })
+
+    .catch(err => next(boom.boomify()))
   },
-  
+
   updateCaption: function(req, res, next) {
     PostModel.findOneAndUpdate(
       {
