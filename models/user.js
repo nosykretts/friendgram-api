@@ -28,7 +28,10 @@ let userSchema = new Schema(
       ref: 'User'
     }],
   },
-  { timestamps: {} } // auto generate createdAt and updatedAt field
+  { 
+    usePushEach: true,
+    timestamps: {} // auto generate createdAt and updatedAt field
+  } 
 )
 
 userSchema.pre('save', function(callback) {

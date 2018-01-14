@@ -23,7 +23,10 @@ let postSchema = new Schema(
     }],
     comments : [commentModel.schema]
   },
-  { timestamps: {} } // auto generate createdAt and updatedAt field
+  { 
+    usePushEach: true,
+    timestamps: {} // auto generate createdAt and updatedAt field
+  } 
 )
 
 module.exports = mongoose.model('Post', postSchema)

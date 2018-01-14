@@ -7,7 +7,7 @@
     "dev": "DEBUG_COLORS=false DEBUG=friendgram:* NODE_ENV=development nodemon ./bin/www",
     "devx": "DEBUG_COLORS=false DEBUG=friendgram:* NODE_ENV=development pm2 start --watch . --name=dev3000 ./bin/www",
     "postdevx": "pm2 logs",
-    "watch" : "onchange '**/*.js' -- yarn run dev"
+    "watch": "onchange '**/*.js' -- yarn run dev"
   },
   "dependencies": {
     "@google-cloud/storage": "^1.5.2",
@@ -21,7 +21,7 @@
     "express": "~4.15.5",
     "faker": "^4.1.0",
     "jsonwebtoken": "^8.1.0",
-    "mongoose": "~4.13.7",
+    "mongoose": "^4.13.9",
     "morgan": "~1.9.0",
     "multer": "^1.3.0"
   }
