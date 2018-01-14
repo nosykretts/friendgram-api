@@ -3,15 +3,15 @@ const boom = require('boom')
 const PostModel = require('../models/post')
 const CommentModel = require('../models/comment')
 
-function manipulatePost(post, userId) {
-  const likedByMe = post.likes.indexOf(userId) >= 0
+function manipulatePost(post, loggedInId) {
+  let postiffy = JSON.parse(JSON.stringify(post))
   return {
     ...post,
-    canEditPost : post.creator._id == userId,
-    canDeletePost : post.creator._id == userId,
-    canLikePost : post.creator._id != userId,
-    likedByMe : post.likes.indexOf(userId) >= 0,
-
+    canEditPost : post.creator._id == loggedInId,
+    canDeletePost : post.creator._id == loggedInId,
+    canLikePost : post.creator._id != loggedInId,
+    likedByMe : post.likes.indexOf(loggedInId) >= 0,
+    followedByMe: postiffy.creator.followers.indexOf(loggedInId) >= 0,
   }
 }
 const creatorOptPopulate = {
@@ -26,12 +26,13 @@ module.exports = {
       .sort({createdAt: 'desc'})
       .populate({
         path: 'creator',
-        select : ['username', 'name'],
+        select : ['username', 'name', 'followers'],
       })
       .populate({
         path: 'comments.creator',
-        select : ['username', 'name'],
+        select : ['username', 'name' ],
       })
+      
       .lean()
       .then(posts => {
         return posts.map(post => manipulatePost(post, req.userId))
@@ -96,7 +97,8 @@ module.exports = {
           message: 'Post not found',
         })
       }
-      let cmt = post.comments.id(req.params.commentId).remove()
+      // let cmt = post.comments.id(req.params.commentId).remove()
+      post.comments.pull(req.params.commentId)
       return post.save()
     })
     .then(post => {
@@ -112,29 +114,24 @@ module.exports = {
       _id : req.params.id,
     })
     .then(post => {
-      if(!post){
+      if(!post || post.creator == req.userId){
         return res.status(404).json({
-          message: 'Post not found',
+          message: 'Post not found or you cant like your own post',
         })
-      }else{
-        console.log(post)
-        if(post.likes.indexOf(req.userId) >= 0){
-          post.likes.pull(req.userId)
-        }else{
-          post.likes.push(req.userId)
-        }
-        console.log('kcinihhhhh')
-        post.save()
-        .then(post => {
-          res.status(200).json({
-            message: 'Like or unlike success',
-            data: post,
-          })
-        })
-        .catch(err => next(boom.boomify()))
       }
+      if(post.likes.indexOf(req.userId) >= 0){
+        post.likes.pull(req.userId)
+      }else{
+        post.likes.push(req.userId)
+      }
+      return post.save()
     })
-
+    .then(post => {
+      res.status(200).json({
+        message: 'Like or unlike success',
+        data: post.likes,
+      })
+    })
     .catch(err => next(boom.boomify()))
   },
 

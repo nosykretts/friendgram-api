@@ -22,18 +22,26 @@ let userSchema = new Schema(
       type: String,
       required: true,
       select: false
-    }
+    },
+    followers:[{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }],
   },
   { timestamps: {} } // auto generate createdAt and updatedAt field
 )
 
 userSchema.pre('save', function(callback) {
-  let plainPassword = this.password
-  bcrypt.hash(plainPassword, 10).then((hash) =>{
-    this.password = hash
+  if (this.isNew) {
+    let plainPassword = this.password
+    bcrypt.hash(plainPassword, 10).then((hash) =>{
+      this.password = hash
+      callback()
+    })
+    .catch(callback)
+  }else{
     callback()
-  })
-  .catch(callback)
+  }
 })
 
 
