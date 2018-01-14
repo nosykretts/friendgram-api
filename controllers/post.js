@@ -10,7 +10,7 @@ function manipulatePost(post, loggedInId) {
     canEditPost : post.creator._id == loggedInId,
     canDeletePost : post.creator._id == loggedInId,
     canLikePost : post.creator._id != loggedInId,
-    likedByMe : post.likes.indexOf(loggedInId) >= 0,
+    likedByMe : postiffy.likes.indexOf(loggedInId) >= 0,
     followedByMe: postiffy.creator.followers.indexOf(loggedInId) >= 0,
   }
 }
@@ -52,6 +52,13 @@ module.exports = {
       photoUrl: req.photoUrl,
       caption: req.body.caption,
     })
+      .then(post => {
+        return  post.populate({
+             path: 'creator',
+             select : ['username', 'name', 'followers'],
+      	  })
+          .execPopulate()
+      })
       .then(post => {
         res.status(200).json({
           message: 'Post successfully created',
